@@ -16,6 +16,12 @@ def write_output_as_json(output, path)
   end
 end
 
+# refactoring : number of days
+
+def number_of_days(rental)
+  (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
+end
+
 # extracting data as hash from data.json
 
 cars = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["cars"]
@@ -24,8 +30,8 @@ rentals_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["r
 # methods as a tool : calculation of price for each rental
 
 def price_calculation(rental, car)
-  nb_of_days = (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
-  price_for_time = price_calculation_with_decreasing_pricing(nb_of_days) * car["price_per_day"]
+  # nb_of_days = (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
+  price_for_time = price_calculation_with_decreasing_pricing(number_of_days(rental)) * car["price_per_day"]
   price_for_distance = rental["distance"] * car["price_per_km"]
   (price_for_time.round + price_for_distance).to_i
 end
@@ -48,7 +54,7 @@ def comission_calculation(price, rental)
   comission = price * 0.3
 
   amount_for_insurance = 0.5 * comission
-  amount_for_assistance = 100 * ((Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1)
+  amount_for_assistance = 100 * number_of_days(rental)
   amount_for_us = comission - amount_for_insurance - amount_for_assistance
 
   {"insurance_fee" => amount_for_insurance.round,
@@ -57,14 +63,20 @@ def comission_calculation(price, rental)
 end
 
 
+def option_calculation(rental, car)
+  {"deductible_reduction" => (  rental["deductible_reduction"] ? 400 * number_of_days(rental) : 0 )}
+end
+
+
+
 # main program : writing output from input as hash and methods as tools :
 
 rentals_output = rentals_data.map do |r|
   car = cars.select { |c|  c["id"] == r["car_id"]  }[0]
-  {id: r["id"].to_i, price: price_calculation(r, car), commission: comission_calculation(price_calculation(r, car), r) }
+  {id: r["id"].to_i, price: price_calculation(r, car), options: option_calculation(r, car), commission: comission_calculation(price_calculation(r, car), r) }
 end
 
-
+# puts rentals_output
 write_output_as_json({"rentals" => rentals_output}, "#{File.dirname(__FILE__)}/output.json")
 
 
