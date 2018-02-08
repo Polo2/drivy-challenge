@@ -67,16 +67,30 @@ def option_calculation(rental, car)
   {"deductible_reduction" => (  rental["deductible_reduction"] ? 400 * number_of_days(rental) : 0 )}
 end
 
+# method : each action's amount is calculated with existing methods
 
+def set_actions(rental, car)
+  actions = []
+  actions << new_action("driver", price_calculation(rental, car) + option_calculation(rental, car)["deductible_reduction"])
+  actions << new_action("owner", price_calculation(rental, car) * 0.7 )
+  actions << new_action("insurance", comission_calculation(price_calculation(rental, car), rental)["insurance_fee"]  )
+  actions << new_action("assistance", comission_calculation(price_calculation(rental, car), rental)["assistance_fee"] )
+  actions << new_action("drivy", comission_calculation(price_calculation(rental, car), rental)["drivy_fee"] + option_calculation(rental, car)["deductible_reduction"] )
+  actions
+end
 
+def new_action(who, amount)
+  type = (who == "driver") ? "debit" : "credit"
+  {"who" => who, "type" => type, "amount" => amount.round }
+end
 # main program : writing output from input as hash and methods as tools :
 
 rentals_output = rentals_data.map do |r|
   car = cars.select { |c|  c["id"] == r["car_id"]  }[0]
-  {id: r["id"].to_i, price: price_calculation(r, car), options: option_calculation(r, car), commission: comission_calculation(price_calculation(r, car), r) }
+  {id: r["id"].to_i, actions: set_actions(r, car) }
 end
 
-
-write_output_as_json({"rentals" => rentals_output}, "#{File.dirname(__FILE__)}/output.json")
+# puts rentals_output
+write_output_as_json({"rentals" => rentals_output}, "#{File.dirname(__FILE__)}/output2.json")
 
 
