@@ -21,12 +21,25 @@ end
 cars = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["cars"]
 rentals_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["rentals"]
 
-# method as a tool : calculation of price for each rental
+# methods as a tool : calculation of price for each rental
+
 def price_calculation(rental, car)
   nb_of_days = (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
-  price_for_time = nb_of_days * car["price_per_day"]
+  price_for_time = price_calculation_with_decreasing_pricing(nb_of_days) * car["price_per_day"]
   price_for_distance = rental["distance"] * car["price_per_km"]
-  price_for_time + price_for_distance
+  (price_for_time.round + price_for_distance).to_i
+end
+
+def price_calculation_with_decreasing_pricing(days)
+  if days > 10
+    return 1 + (3 * 0.9) + (6 * 0.7) + ((days - 10) * 0.5)
+  elsif days > 4
+    return 1 + (3 * 0.9) + ((days - 4) * 0.7)
+  elsif days > 1
+    return 1 + ((days - 1) * 0.9)
+  else
+    return 1
+  end
 end
 
 
@@ -35,6 +48,7 @@ rentals_output = rentals_data.map do |r|
   car = cars.select { |c|  c["id"] == r["car_id"]  }[0]
   {id: r["id"].to_i, price: price_calculation(r, car ) }
 end
+
 
 write_output_as_json({"rentals" => rentals_output}, "#{File.dirname(__FILE__)}/output.json")
 
