@@ -28,7 +28,10 @@ cars = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["cars"]
 rentals_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["rentals"]
 rental_modifications_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["rental_modifications"]
 
-# methods for level 1 : easy calculation of price for each rental
+
+# 6 levels for 1 job :
+
+# method for level 1 : easy calculation of price for each rental
 
 def price_calculation(rental, car)
   # nb_of_days = (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1

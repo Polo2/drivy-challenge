@@ -16,19 +16,28 @@ def write_output_as_json(output, path)
   end
 end
 
+# refactoring : number of days
+
+def number_of_days(rental)
+  (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
+end
+
 # extracting data as hash from data.json
 
 cars = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["cars"]
 rentals_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["rentals"]
 
-# methods as a tool : calculation of price for each rental
+# 6 levels for 1 job :
+
+# method for level 1 : easy calculation of price for each rental
 
 def price_calculation(rental, car)
-  nb_of_days = (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
-  price_for_time = price_calculation_with_decreasing_pricing(nb_of_days) * car["price_per_day"]
+  price_for_time = price_calculation_with_decreasing_pricing(number_of_days(rental)) * car["price_per_day"]
   price_for_distance = rental["distance"] * car["price_per_km"]
   (price_for_time.round + price_for_distance).to_i
 end
+
+# method for level 2 : price calcultation more complicated : new method with decreasing price
 
 def price_calculation_with_decreasing_pricing(days)
   if days > 10
@@ -42,13 +51,13 @@ def price_calculation_with_decreasing_pricing(days)
   end
 end
 
-# method : calculation of comission as hash for each rental
+# method for level 3: calculation of comission as hash for each rental
 
 def comission_calculation(price, rental)
   comission = price * 0.3
 
   amount_for_insurance = 0.5 * comission
-  amount_for_assistance = 100 * ((Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1)
+  amount_for_assistance = 100 * number_of_days(rental)
   amount_for_us = comission - amount_for_insurance - amount_for_assistance
 
   {"insurance_fee" => amount_for_insurance.round,
