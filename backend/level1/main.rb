@@ -16,7 +16,9 @@ def write_output_as_json(output, path)
   end
 end
 
-# extracting data as hash from data.json
+# 6 levels for 1 job :
+
+# method for level 1 : easy calculation of price for each rental
 
 cars = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["cars"]
 rentals_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["rentals"]

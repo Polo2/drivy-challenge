@@ -27,7 +27,9 @@ end
 cars = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["cars"]
 rentals_data = extract_datas_from_json("#{File.dirname(__FILE__)}/data.json")["rentals"]
 
-# methods as a tool : calculation of price for each rental
+# 6 levels for 1 job :
+
+# method for level 1 : easy calculation of price for each rental
 
 def price_calculation(rental, car)
   # nb_of_days = (Date.parse(rental["end_date"]) - Date.parse(rental["start_date"])).to_i + 1
@@ -35,6 +37,8 @@ def price_calculation(rental, car)
   price_for_distance = rental["distance"] * car["price_per_km"]
   (price_for_time.round + price_for_distance).to_i
 end
+
+# method for level 2 : price calcultation more complicated : new method with decreasing price
 
 def price_calculation_with_decreasing_pricing(days)
   if days > 10
@@ -48,7 +52,7 @@ def price_calculation_with_decreasing_pricing(days)
   end
 end
 
-# method : calculation of comission as hash for each rental
+# method for level 3: calculation of comission as hash for each rental
 
 def comission_calculation(price, rental)
   comission = price * 0.3
@@ -63,11 +67,13 @@ def comission_calculation(price, rental)
 end
 
 
+# method for level 4: deductible reduction
+
 def option_calculation(rental, car)
   {"deductible_reduction" => (  rental["deductible_reduction"] ? 400 * number_of_days(rental) : 0 )}
 end
 
-# method : each action's amount is calculated with existing methods
+# methods for level 5 : each action's amount is calculated with existing methods
 
 def set_actions(rental, car)
   actions = []
@@ -91,6 +97,6 @@ rentals_output = rentals_data.map do |r|
 end
 
 # puts rentals_output
-write_output_as_json({"rentals" => rentals_output}, "#{File.dirname(__FILE__)}/output2.json")
+write_output_as_json({"rentals" => rentals_output}, "#{File.dirname(__FILE__)}/output.json")
 
 
