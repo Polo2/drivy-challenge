@@ -1,0 +1,6 @@
+desc 'niveau 6: ce test sert à tester que la sortie du main.rb correspond exactement au output.json demandé'
+task :output_lv6 do
+  ruby 'test/output_lv6.rb'
+end
+
+task default: [:output_lv6]
