@@ -1,6 +1,7 @@
 # Level 3
 
-The car owner now wants his money.
+The car owner now wants
+his money.
 We decide to take a 30% commission on the rental price to cover our costs and have a solid business model.
 
 The commission is split like this:
